@@ -15,6 +15,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    QString generateRandomTitle();
 
 private slots:
     void navigateToUrl();
@@ -22,9 +23,9 @@ private slots:
     void createNewTab();
     void closeTab(int index);
     void goBack();
-    void goForward(); // Declare the goForward slot
+    void goForward();
     void refreshPage();
-    void updateUrlBar(int index); // Declare the updateUrlBar slot
+    void updateUrlBar(int index);
 
 private:
     QTabWidget *tabWidget;
@@ -32,7 +33,7 @@ private:
     QToolBar *toolBar;
     QPushButton *newTabButton;
     QPushButton *backButton;
-    QPushButton *forwardButton; // Declare the forwardButton
+    QPushButton *forwardButton;
     QPushButton *refreshButton;
 
     QWebEngineView* currentWebView();

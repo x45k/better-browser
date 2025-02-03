@@ -11,7 +11,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    setWindowTitle("Simple Web Browser");
+    setWindowTitle("Chrome");
 
     tabWidget = new QTabWidget(this);
     tabWidget->setTabsClosable(true);
