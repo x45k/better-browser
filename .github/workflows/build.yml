@@ -1,12 +1,9 @@
-name: Build Qt Project on Windows
 
 on:
   push:
-    branches:
-      - main  # Trigger on pushes to the main branch
+    branches: [ master ]
   pull_request:
-    branches:
-      - main  # Trigger on pull requests to the main branch
+    branches: [ master ]
 
 env:
   BUILD_TYPE: Release
@@ -15,48 +12,35 @@ jobs:
   build:
     runs-on: windows-latest
     defaults:
-      run:
-        shell: msys2 {0}
+        run:
+            shell: msys2 {0}
 
     steps:
-    - uses: actions/checkout@v3  # Use the latest version of actions/checkout
+      - uses: msys2/setup-msys2@v2
+        with:
+            install: mingw-w64-x86_64-toolchain
+            msystem: mingw64
+            release: false
 
-    # Install MSYS2 with MinGW
-    - name: Set up MSYS2 with MinGW
-      uses: msys2/setup-msys2@v2
-      with:
-        install: mingw-w64-x86_64-toolchain
-        msystem: mingw64
-        release: false
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.12.11'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_mingw73'
+          dir: '${{github.workspace}}/qt/'
+          install-deps: 'true'
 
-    # Install Qt 5.15.2 (via the jurplel/install-qt-action)
-    - name: Install Qt
-      uses: jurplel/install-qt-action@v2
-      with:
-        version: '5.15.2'  # Specify version
-        host: 'windows'
-        target: 'desktop'
-        arch: 'win64_mingw73'
-        dir: '${{github.workspace}}/qt/'  # Qt directory
-        install-deps: 'true'  # Install necessary dependencies
+      - name: List files in Qt
+        run: find ${{env.Qt5_Dir}}
 
-    - name: List files in Qt directory
-      run: find ${{env.Qt5_Dir}}  # List the files to confirm installation
+      - uses: actions/checkout@v2
 
-    # Configure the project using qmake
-    - name: Configure with qmake
-      run: |
-        $env:PATH += ";${{github.workspace}}/qt/5.15.2/mingw73_64/bin"
-        qmake better-browser.pro  # Replace with your .pro file path
+      - name: Configure CMake
+        env:
+          CMAKE_PREFIX_PATH: ${{env.Qt5_Dir}}
+        run: cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G "CodeBlocks - MinGW Makefiles" -B '${{github.workspace}}'/build
 
-    # Build the project with mingw32-make
-    - name: Build with mingw32-make
-      run: |
-        mingw32-make
-
-    # Upload the build artifact (exe)
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4  # Make sure you're using the latest version
-      with:
-        name: build-artifact
-        path: better-browser.exe  # Adjust the path if necessary
+      - name: Build
+        run: cmake --build '${{github.workspace}}'/build --target RePr
