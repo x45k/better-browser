@@ -16,12 +16,21 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up Qt via Chocolatey
+    - name: Set up Qt manually
       run: |
-        choco install qt5 --version=5.15.2 --install-arguments 'ADD_EXAMPLES=0 ADD_DOC=0'  # Specify version of Qt you need
-        refreshenv  # Refresh environment variables to detect Qt installation
+        # Download Qt installer for Windows
+        Invoke-WebRequest -Uri "https://download.qt.io/official_releases/qt/5.15/5.15.2/qt-opensource-windows-x86-5.15.2.exe" -OutFile "qt-installer.exe"
+        
+        # Run the installer in headless mode (no UI)
+        Start-Process -NoNewWindow -FilePath "qt-installer.exe" -ArgumentList "/S" -Wait
+        
+        # Set up environment variables for Qt (Adjust this path if necessary)
+        $env:PATH += ";C:\Qt\5.15.2\msvc2019_64\bin"  # You may need to change this path if different
+        
+        # Verify Qt installation
+        qmake -v
 
-    - name: Install build tools (MinGW)
+    - name: Install MinGW via Chocolatey
       run: |
         choco install mingw
         refreshenv  # Refresh environment variables to detect MinGW installation
@@ -32,7 +41,7 @@ jobs:
         mingw32-make           # Compile the project
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4  # Updated to v3
+      uses: actions/upload-artifact@v4  # Updated to v4
       with:
         name: build-artifact
         path: better-browser.exe  # Adjust to the path where the .exe is built
