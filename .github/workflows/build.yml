@@ -3,10 +3,10 @@ name: Build Qt Project on Windows
 on:
   push:
     branches:
-      - main   # Trigger on pushes to the main branch
+      - main  # Trigger on pushes to the main branch
   pull_request:
     branches:
-      - main   # Trigger on pull requests to the main branch
+      - main  # Trigger on pull requests to the main branch
 
 jobs:
   build:
@@ -16,23 +16,15 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up Qt
-      uses: mkeeter/setup-qt@v2
-      with:
-        qt-version: '5.15.2'  # Specify the Qt version you want
-        qt-arch: 'win64'      # Specify the architecture (win64 or win32)
-        qt-additional-modules: 'qtbase'  # Specify Qt modules
-
-    - name: Set up MSYS2 (required for building with qmake)
+    - name: Set up Qt via Chocolatey
       run: |
-        choco install msys2
-        refreshenv
-        pacman -Syu --noconfirm
-        pacman -S --noconfirm base-devel mingw-w64-x86_64-toolchain
+        choco install qt5 --version=5.15.2 --install-arguments 'ADD_EXAMPLES=0 ADD_DOC=0'  # Specify version of Qt you need
+        refreshenv  # Refresh environment variables to detect Qt installation
 
-    - name: Install dependencies
+    - name: Install build tools (MinGW)
       run: |
-        pacman -S --noconfirm mingw-w64-x86_64-qt5
+        choco install mingw
+        refreshenv  # Refresh environment variables to detect MinGW installation
 
     - name: Configure and build project
       run: |
@@ -40,7 +32,7 @@ jobs:
         mingw32-make           # Compile the project
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: build-artifact
         path: path/to/your/exe/yourapp.exe  # Adjust to the path where the .exe is built
