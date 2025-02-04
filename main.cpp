@@ -43,8 +43,6 @@ int main(int argc, char *argv[])
     appBundleDir.cdUp();
     appBundleDir.cdUp();
     appBundleDir.cdUp();
-    appBundleDir.cdUp();
-    appBundleDir.cdUp();
 
     QString logoPath = appBundleDir.path() + "/resources/logo.png";
     QPixmap originalPixmap(logoPath);
