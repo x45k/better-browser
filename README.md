@@ -1,6 +1,6 @@
 # better-browser
 ## how do i use it?
-go to the [releases](https://github.com/x45k/better-browser/releases/), download the zip file, extract it, and run the exe.
+go to the [releases](https://github.com/x45k/better-browser/releases/), download the zip file, extract it, and run the better-browser.exe file
 ## i found a problem!
 please report the issue to me so i can fix it asap (especially if the app is not working)
 ## nothing saves when i use it!
