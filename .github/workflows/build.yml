@@ -16,15 +16,19 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up Qt manually
+    - name: Download Qt online installer
       run: |
-        # Download Qt installer for Windows from a working URL
-        Invoke-WebRequest -Uri "https://download.qt.io/archive/qt/5.15/5.15.2/qt-opensource-windows-x86-5.15.2.exe" -OutFile "qt-installer.exe"
-        
+        # Download the Qt Online Installer (no version specified, latest available)
+        Invoke-WebRequest -Uri "https://download.qt.io/official_releases/qt/5.15/qt-opensource-windows-x86-5.15.2.exe" -OutFile "qt-installer.exe"
+
+    - name: Install Qt silently
+      run: |
         # Run the installer in headless mode (no UI)
         Start-Process -NoNewWindow -FilePath "qt-installer.exe" -ArgumentList "/S" -Wait
-        
-        # Set up environment variables for Qt (Adjust this path if necessary)
+
+    - name: Set up environment for Qt
+      run: |
+        # Set up environment variables for Qt (adjust this if needed)
         $env:PATH += ";C:\Qt\5.15.2\msvc2019_64\bin"  # You may need to change this path if different
         
         # Verify Qt installation
