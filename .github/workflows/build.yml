@@ -8,44 +8,55 @@ on:
     branches:
       - main  # Trigger on pull requests to the main branch
 
+env:
+  BUILD_TYPE: Release
+
 jobs:
   build:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3  # Use the latest version of actions/checkout
 
-    - name: Download Qt online installer
+    # Install MSYS2 with MinGW
+    - name: Set up MSYS2 with MinGW
+      uses: msys2/setup-msys2@v2
+      with:
+        install: mingw-w64-x86_64-toolchain
+        msystem: mingw64
+        release: false
+
+    # Install Qt 5.15.2 (via the jurplel/install-qt-action)
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: '5.15.2'  # Specify version
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_mingw73'
+        dir: '${{github.workspace}}/qt/'  # Qt directory
+        install-deps: 'true'  # Install necessary dependencies
+
+    - name: List files in Qt directory
+      run: find ${{env.Qt5_Dir}}  # List the files to confirm installation
+
+    # Configure the project using qmake
+    - name: Configure with qmake
       run: |
-        # Download the Qt Online Installer (no version specified, latest available)
-        Invoke-WebRequest -Uri "https://download.qt.io/official_releases/qt/5.15/qt-opensource-windows-x86-5.15.2.exe" -OutFile "qt-installer.exe"
+        $env:PATH += ";${{github.workspace}}/qt/5.15.2/mingw73_64/bin"
+        qmake better-browser.pro  # Replace with your .pro file path
 
-    - name: Install Qt silently
+    # Build the project with mingw32-make
+    - name: Build with mingw32-make
       run: |
-        # Run the installer in headless mode (no UI)
-        Start-Process -NoNewWindow -FilePath "qt-installer.exe" -ArgumentList "/S" -Wait
+        mingw32-make
 
-    - name: Set up environment for Qt
-      run: |
-        # Set up environment variables for Qt (adjust this if needed)
-        $env:PATH += ";C:\Qt\5.15.2\msvc2019_64\bin"  # You may need to change this path if different
-        
-        # Verify Qt installation
-        qmake -v
-
-    - name: Install MinGW via Chocolatey
-      run: |
-        choco install mingw
-        refreshenv  # Refresh environment variables to detect MinGW installation
-
-    - name: Configure and build project
-      run: |
-        qmake better-browser.pro  # Adjust path if necessary
-        mingw32-make           # Compile the project
-
+    # Upload the build artifact (exe)
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4  # Updated to v4
+      uses: actions/upload-artifact@v4  # Make sure you're using the latest version
       with:
         name: build-artifact
-        path: better-browser.exe  # Adjust to the path where the .exe is built
+        path: better-browser.exe  # Adjust the path if necessary
