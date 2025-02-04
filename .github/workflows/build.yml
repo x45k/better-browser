@@ -28,11 +28,11 @@ jobs:
 
     - name: Configure and build project
       run: |
-        qmake yourproject.pro  # Adjust path if necessary
+        qmake better-browser.pro  # Adjust path if necessary
         mingw32-make           # Compile the project
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3  # Updated to v3
       with:
         name: build-artifact
-        path: path/to/your/exe/yourapp.exe  # Adjust to the path where the .exe is built
+        path: better-browser.exe  # Adjust to the path where the .exe is built
