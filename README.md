@@ -1,4 +1,4 @@
-# better-browser
+# updated version at [thz v2 page](https://github.com/x45k/better-browser-v2)
 # how do i use it?
 go to the [releases](https://github.com/x45k/better-browser/releases/), download the zip file, extract it, and run the better-browser.exe file
 # known issues
